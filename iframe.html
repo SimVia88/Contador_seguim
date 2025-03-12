@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contador Animado Responsivo</title>
+    <title>Contador en iFrame</title>
     <style>
         body {
             display: flex;
@@ -16,8 +16,8 @@
 
         .iframe-container {
             width: 100%;
-            max-width: 600px;
-            height: 250px;
+            max-width: 400px; /* Ajuste del tamaño máximo */
+            height: 200px; /* Ajuste del alto */
             border: none;
             overflow: hidden;
         }
@@ -32,8 +32,21 @@
 <body>
 
     <div class="iframe-container">
-        <iframe src="index.html?referencia=500&seguimientoAnual=750" title="Contador Animado"></iframe>
+        <iframe id="contador-frame"></iframe>
     </div>
+
+    <script>
+        // Obtener valores desde la URL de Adalo
+        const params = new URLSearchParams(window.location.search);
+        const referencia = params.get("referencia") || 0;
+        const seguimientoAnual = params.get("seguimientoAnual") || 0;
+
+        // Construir la URL del iframe con los valores dinámicos
+        const iframeSrc = `contador.html?referencia=${referencia}&seguimientoAnual=${seguimientoAnual}`;
+
+        // Insertar la URL en el iframe
+        document.getElementById("contador-frame").src = iframeSrc;
+    </script>
 
 </body>
 </html>
