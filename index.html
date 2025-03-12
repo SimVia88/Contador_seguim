@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador Animado</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #E1E8ED;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .contador {
+            font-size: 80px;
+            font-weight: bold;
+            text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+            transition: color 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="contador" id="contador">0%</div>
+
+    <script>
+        // Función para obtener valores desde la URL
+        function getValores() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                referencia: parseFloat(params.get("referencia")) || 0,
+                seguimientoAnual: parseFloat(params.get("seguimientoAnual")) || 0
+            };
+        }
+
+        // Función de animación del contador
+        function animateCounter(targetValue, referencia) {
+            let currentValue = 0;
+            const increment = targetValue / 100; // Incremento en 100 pasos
+            const duration = 2000; // Duración total de la animación en milisegundos (2s)
+            const interval = duration / 100; // Intervalo entre cada actualización
+
+            const counterElement = document.getElementById("contador");
+
+            // Determinar el color según la comparación con la referencia
+            counterElement.style.color = targetValue >= referencia ? "green" : "red";
+
+            const animation = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= targetValue) {
+                    currentValue = targetValue;
+                    clearInterval(animation);
+                }
+                counterElement.textContent = currentValue.toFixed(2) + "%"; // Mostrar con 2 decimales + "%"
+            }, interval);
+        }
+
+        // Obtener valores de la URL y animar el contador
+        const valores = getValores();
+        animateCounter(valores.seguimientoAnual, valores.referencia);
+    </script>
+
+</body>
+</html>
