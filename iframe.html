@@ -42,7 +42,7 @@
         const seguimientoAnual = params.get("seguimientoAnual") || 0;
 
         // Construir la URL del iframe con los valores dinámicos
-        const iframeSrc = `contador.html?referencia=${referencia}&seguimientoAnual=${seguimientoAnual}`;
+        const iframeSrc = `index.html?referencia=${referencia}&seguimientoAnual=${seguimientoAnual}`;
 
         // Insertar la URL en el iframe
         document.getElementById("contador-frame").src = iframeSrc;
