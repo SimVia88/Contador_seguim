@@ -1,4 +1,43 @@
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contador en iFrame</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #E1E8ED;
+            margin: 0;
+            overflow: hidden; /* Evita barras de desplazamiento */
+        }
+
+        .iframe-container {
+            width: 100%;
+            max-width: 100%; /* Permite que se ajuste al tamaño disponible */
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            overflow: hidden; /* Elimina barras de desplazamiento */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="iframe-container">
+        <iframe id="contador-frame"></iframe>
+    </div>
+
     <script>
         // Obtener valores desde la URL de Adalo
         const params = new URLSearchParams(window.location.search);
@@ -10,7 +49,17 @@
 
         // Insertar la URL en el iframe
         document.getElementById("contador-frame").src = iframeSrc;
-    </script>
-    <iframe src="https://simvia88.github.io/Contador_seguim/index.html?referencia=${referencia}&seguimientoAnual=${seguimientoAnual}" style="width: 100%; height: 100%; border: none"></iframe>
-    </html>
 
+        // Ajustar tamaño del iframe dinámicamente según la ventana
+        function resizeIframe() {
+            const iframe = document.getElementById("contador-frame");
+            iframe.style.height = window.innerHeight + "px"; // Ajusta la altura al 100% de la ventana
+        }
+
+        // Escuchar eventos de cambio de tamaño de pantalla
+        window.addEventListener("resize", resizeIframe);
+        resizeIframe(); // Ajustar en la carga inicial
+    </script>
+
+</body>
+</html>

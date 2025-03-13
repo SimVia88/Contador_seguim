@@ -10,16 +10,18 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: transparent; /* Para que se vea bien dentro del iframe */
+            background-color: transparent;
             margin: 0;
             font-family: Arial, sans-serif;
+            overflow: hidden; /* Evita desplazamientos */
         }
 
         .contador {
-            font-size: 80px;
+            font-size: 10vw; /* Tamaño dinámico según el ancho de la pantalla */
             font-weight: bold;
             text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
             transition: color 0.5s ease-in-out;
+            text-align: center;
         }
     </style>
 </head>
@@ -40,9 +42,9 @@
         // Función de animación del contador
         function animateCounter(targetValue, referencia) {
             let currentValue = 0;
-            const increment = targetValue / 100; // Incremento en 100 pasos
-            const duration = 2000; // Duración total de la animación en milisegundos (2s)
-            const interval = duration / 100; // Intervalo entre cada actualización
+            const increment = targetValue / 100;
+            const duration = 2000; // 2s de animación
+            const interval = duration / 100;
 
             const counterElement = document.getElementById("contador");
 
