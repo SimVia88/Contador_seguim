@@ -51,9 +51,9 @@
 
             // Determinar el color según el criterio
             if (criterio === "AUM") {
-                counterElement.style.color = targetValue >= referencia ? "green" : "red";
+                counterElement.style.color = targetValue >= referencia ? "#85CD7B" : "#F19595"; // Verde o Rojo
             } else {
-                counterElement.style.color = targetValue >= referencia ? "red" : "green";
+                counterElement.style.color = targetValue >= referencia ? "#F19595" : "#85CD7B"; // Rojo o Verde
             }
 
             const animation = setInterval(() => {
