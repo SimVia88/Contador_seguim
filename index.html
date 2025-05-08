@@ -1,75 +1,88 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contador Animado</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: transparent;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            overflow: hidden;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contador Escalable</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: transparent;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
 
-        .contador {
-            font-size: min(15vw, 150px);
-            font-weight: bold;
-            text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
-            transition: color 0.5s ease-in-out;
-            text-align: center;
-        }
-    </style>
+    .contador {
+      font-size: min(15vw, 150px);
+      font-weight: bold;
+      text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+      transition: color 0.5s ease-in-out;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
+  <div class="contador" id="contador">0</div>
 
-    <div class="contador" id="contador">0%</div>
+  <script>
+    // LISTAS de ID por tipo de unidad — EDITABLES
+    const simbolosConfig = {
+      "%":   [21, 22, 23, 28, 29, 30, 31, 32, 33, 34, 35, 36, 44, 45, 46, 47, 48, 49, 50, 51, 52],
+      "Kg":  [27, 43],
+      "m³":  [26, 42],
+      "kWh": [24, 25, 40, 41]
+    };
 
-    <script>
-        // Función para obtener valores desde la URL
-        function getValores() {
-            const params = new URLSearchParams(window.location.search);
-            return {
-                referencia: parseFloat(params.get("referencia")) || 0,
-                seguimientoAnual: parseFloat(params.get("seguimientoAnual")) || 0,
-                criterio: params.get("criterio") || "AUM"
-            };
+    // Función que encuentra el símbolo para un ID
+    function obtenerSimboloDesdeID(id) {
+      for (const [simbolo, ids] of Object.entries(simbolosConfig)) {
+        if (ids.includes(id)) return simbolo;
+      }
+      return ""; // Por defecto si no se encuentra
+    }
+
+    function getValores() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        referencia: parseFloat(params.get("referencia")) || 0,
+        seguimientoAnual: parseFloat(params.get("seguimientoAnual")) || 0,
+        criterio: params.get("criterio") || "AUM",
+        id: parseInt(params.get("id")) || null
+      };
+    }
+
+    function animateCounter(valor, referencia, criterio, id) {
+      let currentValue = 0;
+      const increment = valor / 100;
+      const duration = 2000;
+      const interval = duration / 100;
+      const el = document.getElementById("contador");
+
+      // Color dinámico según criterio
+      if (criterio === "AUM") {
+        el.style.color = valor >= referencia ? "#85CD7B" : "#F19595";
+      } else {
+        el.style.color = valor >= referencia ? "#F19595" : "#85CD7B";
+      }
+
+      const simbolo = obtenerSimboloDesdeID(id);
+
+      const animation = setInterval(() => {
+        currentValue += increment;
+        if (currentValue >= valor) {
+          currentValue = valor;
+          clearInterval(animation);
         }
+        el.textContent = currentValue.toFixed(2) + (simbolo ? " " + simbolo : "");
+      }, interval);
+    }
 
-        // Función de animación del contador
-        function animateCounter(targetValue, referencia, criterio) {
-            let currentValue = 0;
-            const increment = targetValue / 100;
-            const duration = 2000;
-            const interval = duration / 100;
-
-            const counterElement = document.getElementById("contador");
-
-            // Determinar el color según el criterio
-            if (criterio === "AUM") {
-                counterElement.style.color = targetValue >= referencia ? "#85CD7B" : "#F19595"; // Verde o Rojo
-            } else {
-                counterElement.style.color = targetValue >= referencia ? "#F19595" : "#85CD7B"; // Rojo o Verde
-            }
-
-            const animation = setInterval(() => {
-                currentValue += increment;
-                if (currentValue >= targetValue) {
-                    currentValue = targetValue;
-                    clearInterval(animation);
-                }
-                counterElement.textContent = currentValue.toFixed(2) + "%";
-            }, interval);
-        }
-
-        // Obtener valores de la URL y animar el contador
-        const valores = getValores();
-        animateCounter(valores.seguimientoAnual, valores.referencia, valores.criterio);
-    </script>
-
+    const valores = getValores();
+    animateCounter(valores.seguimientoAnual, valores.referencia, valores.criterio, valores.id);
+  </script>
 </body>
 </html>
