@@ -46,14 +46,15 @@
     }
 
     function getValores() {
-      const params = new URLSearchParams(window.location.search);
-      return {
-        referencia: (parseFloat(params.get("referencia")) || 0 / 100),
-        seguimientoAnual: (parseFloat(params.get("seguimientoAnual")) || 0 / 100),
-        criterio: params.get("criterio") || "AUM",
-        id: parseInt(params.get("id")) || null
-      };
-    }
+	  const params = new URLSearchParams(window.location.search);
+
+	  return {
+		referencia: (parseFloat(params.get("referencia")) || 0) / 100,
+		seguimientoAnual: (parseFloat(params.get("seguimientoAnual")) || 0) / 100,
+		criterio: params.get("criterio") || "AUM",
+		id: parseInt(params.get("id")) || null
+	  };
+	}
 
     function animateCounter(valor, referencia, criterio, id) {
       let currentValue = 0;

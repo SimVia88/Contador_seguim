@@ -41,14 +41,15 @@
     <script>
         // Obtener valores desde la URL de Adalo
         const params = new URLSearchParams(window.location.search);
-        const referencia = params.get("referencia") || 0;
-        const seguimientoAnual = params.get("seguimientoAnual") || 0;
 
-        // Construir la URL del iframe con los valores dinámicos
-        const iframeSrc = `index.html?referencia=${referencia}&seguimientoAnual=${seguimientoAnual}`;
+		const referencia = params.get("referencia") || "0";
+		const seguimientoAnual = params.get("seguimientoAnual") || "0";
+		const criterio = params.get("criterio") || "AUM";
+		const id = params.get("id") || "";
 
-        // Insertar la URL en el iframe
-        document.getElementById("contador-frame").src = iframeSrc;
+		const iframeSrc = `index.html?referencia=${encodeURIComponent(referencia)}&seguimientoAnual=${encodeURIComponent(seguimientoAnual)}&criterio=${encodeURIComponent(criterio)}&id=${encodeURIComponent(id)}`;
+
+		document.getElementById("contador-frame").src = iframeSrc;
 
         // Ajustar tamaño del iframe dinámicamente según la ventana
         function resizeIframe() {
