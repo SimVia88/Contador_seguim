@@ -41,8 +41,8 @@
     <script>
         // Obtener valores desde la URL de Adalo
         const params = new URLSearchParams(window.location.search);
-        const referencia = (params.get("referencia") || 0 / 100);
-        const seguimientoAnual = (params.get("seguimientoAnual") || 0 / 100);
+        const referencia = params.get("referencia") || 0;
+        const seguimientoAnual = params.get("seguimientoAnual") || 0;
 
         // Construir la URL del iframe con los valores dinámicos
         const iframeSrc = `index.html?referencia=${referencia}&seguimientoAnual=${seguimientoAnual}`;
