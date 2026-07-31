@@ -1,91 +1,294 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contador Escalable</title>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+  >
+
+  <title>Contador adaptable</title>
+
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: transparent;
+    }
+
     body {
       display: flex;
-      justify-content: center;
       align-items: center;
-      height: 100vh;
-      background-color: transparent;
-      margin: 0;
+      justify-content: center;
       font-family: Arial, sans-serif;
+    }
+
+    #contenedor {
+      width: 100%;
+      height: 100%;
+      padding: 2px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
       overflow: hidden;
     }
 
-    .contador {
-      font-size: min(15vw, 150px);
-      font-weight: bold;
+    #contador {
+      display: inline-block;
+
+      font-weight: 700;
+      line-height: 1;
+      text-align: center;
+      white-space: nowrap;
+
+      transform-origin: center center;
+
       text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
       transition: color 0.5s ease-in-out;
-      text-align: center;
     }
   </style>
 </head>
+
 <body>
-  <div class="contador" id="contador">0</div>
+
+  <div id="contenedor">
+    <div id="contador">0</div>
+  </div>
 
   <script>
-    // LISTAS de ID por tipo de unidad — EDITABLES
     const simbolosConfig = {
-      "%":   [46, 45, 29, 28, 27, 17, 16, 15, 2, 1],
-      "kWh":  [44, 43, 40, 39, 34, 33, 22, 21, 11, 10],
-      "m³/persona":  [9, 41, 42],
-	  "actividades":  [3],
-	  "Kg":  [8],
+      "%": [46, 45, 29, 28, 27, 17, 16, 15, 2, 1],
+      "kWh": [44, 43, 40, 39, 34, 33, 22, 21, 11, 10],
+      "m³/persona": [9, 41, 42],
+      "actividades": [3],
+      "Kg": [8],
       "L/100 km": [32, 31, 20, 19, 7, 5]
     };
 
-    // Función que encuentra el símbolo para un ID
     function obtenerSimboloDesdeID(id) {
       for (const [simbolo, ids] of Object.entries(simbolosConfig)) {
-        if (ids.includes(id)) return simbolo;
+        if (ids.includes(id)) {
+          return simbolo;
+        }
       }
-      return ""; // Por defecto si no se encuentra
+
+      return "";
+    }
+
+    function obtenerNumero(parametro) {
+      const valor = parametro
+        ? parametro.replace(",", ".")
+        : "";
+
+      const numero = parseFloat(valor);
+
+      return Number.isFinite(numero)
+        ? numero
+        : 0;
     }
 
     function getValores() {
-	  const params = new URLSearchParams(window.location.search);
+      const params = new URLSearchParams(window.location.search);
 
-	  return {
-		referencia: (parseFloat(params.get("referencia")) || 0) / 100,
-		seguimientoAnual: (parseFloat(params.get("seguimientoAnual")) || 0) / 100,
-		criterio: params.get("criterio") || "AUM",
-		id: parseInt(params.get("id")) || null
-	  };
-	}
+      return {
+        referencia:
+          obtenerNumero(params.get("referencia")) / 100,
 
-    function animateCounter(valor, referencia, criterio, id) {
-      let currentValue = 0;
-      const increment = valor / 100;
-      const duration = 2000;
-      const interval = duration / 100;
-      const el = document.getElementById("contador");
+        seguimientoAnual:
+          obtenerNumero(params.get("seguimientoAnual")) / 100,
 
-      // Color dinámico según criterio
-      if (criterio === "AUM") {
-        el.style.color = valor >= referencia ? "#85CD7B" : "#F19595";
-      } else {
-        el.style.color = valor >= referencia ? "#F19595" : "#85CD7B";
-      }
+        criterio:
+          params.get("criterio") || "AUM",
 
-      const simbolo = obtenerSimboloDesdeID(id);
-
-      const animation = setInterval(() => {
-        currentValue += increment;
-        if (currentValue >= valor) {
-          currentValue = valor;
-          clearInterval(animation);
-        }
-        el.textContent = currentValue.toFixed(2) + (simbolo ? " " + simbolo : "");
-      }, interval);
+        id:
+          parseInt(params.get("id"), 10) || null
+      };
     }
 
-    const valores = getValores();
-    animateCounter(valores.seguimientoAnual, valores.referencia, valores.criterio, valores.id);
+    function ajustarTexto() {
+      const contenedor =
+        document.getElementById("contenedor");
+
+      const contador =
+        document.getElementById("contador");
+
+      const anchoDisponible =
+        Math.max(contenedor.clientWidth - 4, 1);
+
+      const altoDisponible =
+        Math.max(contenedor.clientHeight - 4, 1);
+
+      /*
+       * Se parte de un tamaño alto y después se reduce
+       * hasta que quepa en el ancho y alto reales del Web View.
+       */
+      let tamano =
+        Math.min(altoDisponible * 0.8, 150);
+
+      contador.style.fontSize =
+        tamano + "px";
+
+      contador.style.transform =
+        "none";
+
+      const anchoTexto =
+        contador.scrollWidth;
+
+      const altoTexto =
+        contador.scrollHeight;
+
+      const escalaAncho =
+        anchoDisponible / anchoTexto;
+
+      const escalaAlto =
+        altoDisponible / altoTexto;
+
+      const escala =
+        Math.min(escalaAncho, escalaAlto, 1);
+
+      contador.style.transform =
+        "scale(" + escala + ")";
+    }
+
+    function aplicarColor(
+      valor,
+      referencia,
+      criterio
+    ) {
+      const contador =
+        document.getElementById("contador");
+
+      if (criterio === "AUM") {
+        contador.style.color =
+          valor >= referencia
+            ? "#85CD7B"
+            : "#F19595";
+      } else {
+        contador.style.color =
+          valor >= referencia
+            ? "#F19595"
+            : "#85CD7B";
+      }
+    }
+
+    function mostrarValor(
+      valor,
+      id
+    ) {
+      const contador =
+        document.getElementById("contador");
+
+      const simbolo =
+        obtenerSimboloDesdeID(id);
+
+      contador.textContent =
+        valor.toFixed(2) +
+        (simbolo ? " " + simbolo : "");
+
+      ajustarTexto();
+    }
+
+    function animateCounter(
+      valor,
+      referencia,
+      criterio,
+      id
+    ) {
+      let currentValue = 0;
+
+      const pasos = 100;
+      const duracion = 2000;
+      const intervalo = duracion / pasos;
+
+      const incremento =
+        valor / pasos;
+
+      aplicarColor(
+        valor,
+        referencia,
+        criterio
+      );
+
+      mostrarValor(
+        0,
+        id
+      );
+
+      if (valor === 0) {
+        return;
+      }
+
+      const animation =
+        setInterval(() => {
+          currentValue += incremento;
+
+          if (
+            incremento >= 0 &&
+            currentValue >= valor
+          ) {
+            currentValue = valor;
+            clearInterval(animation);
+          }
+
+          if (
+            incremento < 0 &&
+            currentValue <= valor
+          ) {
+            currentValue = valor;
+            clearInterval(animation);
+          }
+
+          mostrarValor(
+            currentValue,
+            id
+          );
+        }, intervalo);
+    }
+
+    const valores =
+      getValores();
+
+    animateCounter(
+      valores.seguimientoAnual,
+      valores.referencia,
+      valores.criterio,
+      valores.id
+    );
+
+    /*
+     * Adalo puede recalcular el tamaño del Web View
+     * después de cargar la página.
+     */
+    window.addEventListener(
+      "load",
+      ajustarTexto
+    );
+
+    window.addEventListener(
+      "resize",
+      ajustarTexto
+    );
+
+    if ("ResizeObserver" in window) {
+      const observador =
+        new ResizeObserver(ajustarTexto);
+
+      observador.observe(
+        document.getElementById("contenedor")
+      );
+    }
   </script>
+
 </body>
 </html>
