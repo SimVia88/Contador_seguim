@@ -29,18 +29,13 @@
       display: flex;
       align-items: center;
       justify-content: center;
-
-      font-family:
-        "Segoe UI",
-        Arial,
-        sans-serif;
+      font-family: Arial, sans-serif;
     }
 
     #contenedor {
       width: 100%;
       height: 100%;
-
-      padding: 8px;
+      padding: 2px;
 
       display: flex;
       align-items: center;
@@ -50,38 +45,17 @@
     }
 
     #contador {
-      display: flex;
-      align-items: baseline;
-      justify-content: center;
+      display: inline-block;
 
-      gap: 12px;
-
+      font-weight: 700;
       line-height: 1;
+      text-align: center;
       white-space: nowrap;
 
       transform-origin: center center;
 
-      transition:
-        color 0.45s ease-in-out,
-        transform 0.25s ease-in-out;
-    }
-
-    #valor {
-      font-weight: 800;
-      letter-spacing: -1.5px;
-
-      text-shadow:
-        2px 3px 8px rgba(0, 0, 0, 0.16);
-    }
-
-    #unidad {
-      font-weight: 700;
-      letter-spacing: -0.4px;
-
-      opacity: 0.95;
-
-      text-shadow:
-        1px 2px 5px rgba(0, 0, 0, 0.12);
+      text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+      transition: color 0.5s ease-in-out;
     }
   </style>
 </head>
@@ -89,27 +63,21 @@
 <body>
 
   <div id="contenedor">
-    <div id="contador">
-      <span id="valor">0</span>
-      <span id="unidad"></span>
-    </div>
+    <div id="contador">0</div>
   </div>
 
   <script>
     /*
-     * ==========================================================
-     * CONFIGURACIÓN DE UNIDADES E IDs
-     * ==========================================================
+     * CONFIGURACIÓN DE UNIDADES
      *
-     * Añade cada nueva ID dentro de su unidad correspondiente.
+     * Cuando crees o modifiques un indicador, añade aquí su ID
+     * dentro de la unidad correspondiente.
      *
-     * IDs incluidos en "L/km":
-     * - Se dividen entre 10.000.
-     * - Se muestran con 4 decimales.
-     *
-     * Resto de IDs:
-     * - Se dividen entre 100.
-     * - Se muestran con 2 decimales.
+     * IMPORTANTE:
+     * - Los IDs incluidos en "L/km" se dividirán entre 10.000
+     *   y se mostrarán con 4 decimales.
+     * - Todos los demás IDs se dividirán entre 100
+     *   y se mostrarán con 2 decimales.
      */
     const simbolosConfig = {
       "%": [
@@ -127,14 +95,14 @@
       "L/100 Tm": [
         31, 19, 5
       ],
-
-      "kg": [
+	  
+	  "kg": [
         8
       ],
-
+	  
       /*
-       * Añade aquí todas las IDs correspondientes
-       * a indicadores expresados en L/km.
+       * AÑADE AQUÍ todas las IDs de los indicadores
+       * que deban expresarse en litros por kilómetro.
        */
       "L/km": [
         32, 20, 7
@@ -142,7 +110,7 @@
     };
 
     /*
-     * Devuelve la unidad asociada a una ID.
+     * Devuelve la unidad correspondiente a la ID recibida.
      */
     function obtenerSimboloDesdeID(id) {
       for (const [simbolo, ids] of Object.entries(simbolosConfig)) {
@@ -157,12 +125,12 @@
     /*
      * Convierte el valor recibido desde Adalo en un número.
      *
-     * Admite:
-     * 1225
-     * 1,225
-     * 1.225
-     * 12,25
-     * 12.25
+     * También corrige casos en los que Adalo envía separadores
+     * de miles, por ejemplo:
+     *
+     * 1,225  -> 1225
+     * 1.225  -> 1225
+     * 1225   -> 1225
      */
     function obtenerNumero(parametro) {
       if (
@@ -176,11 +144,10 @@
       let valor = parametro
         .toString()
         .trim()
-        .replace("%", "")
         .replace(/\s/g, "");
 
       /*
-       * Coma como separador de miles:
+       * Formato de miles con coma:
        * 1,225 -> 1225
        */
       if (/^-?\d{1,3}(,\d{3})+$/.test(valor)) {
@@ -188,7 +155,7 @@
       }
 
       /*
-       * Punto como separador de miles:
+       * Formato de miles con punto:
        * 1.225 -> 1225
        */
       else if (/^-?\d{1,3}(\.\d{3})+$/.test(valor)) {
@@ -211,12 +178,16 @@
     }
 
     /*
-     * Solo los indicadores L/km dividen entre 10.000.
-     * Todos los demás dividen entre 100.
+     * Determina el divisor según la unidad asociada al ID.
+     *
+     * L/km:
+     * Adalo 338 -> HTML 338 / 10000 = 0.0338 L/km
+     *
+     * Resto:
+     * Adalo 800 -> HTML 800 / 100 = 8.00 %
      */
     function obtenerDivisorDesdeID(id) {
-      const simbolo =
-        obtenerSimboloDesdeID(id);
+      const simbolo = obtenerSimboloDesdeID(id);
 
       return simbolo === "L/km"
         ? 10000
@@ -224,30 +195,15 @@
     }
 
     /*
-     * Los indicadores L/km muestran 4 decimales.
-     * El resto muestra 2.
-     */
-    function obtenerDecimalesDesdeID(id) {
-      const simbolo =
-        obtenerSimboloDesdeID(id);
-
-      return simbolo === "L/km"
-        ? 4
-        : 2;
-    }
-
-    /*
      * Obtiene y convierte los parámetros enviados desde Adalo.
      */
     function getValores() {
-      const params =
-        new URLSearchParams(window.location.search);
+      const params = new URLSearchParams(
+        window.location.search
+      );
 
       const id =
-        Number.parseInt(
-          params.get("id"),
-          10
-        ) || null;
+        Number.parseInt(params.get("id"), 10) || null;
 
       const divisor =
         obtenerDivisorDesdeID(id);
@@ -275,8 +231,8 @@
     }
 
     /*
-     * Ajusta automáticamente el tamaño del número y la unidad
-     * para ocupar correctamente el espacio disponible.
+     * Ajusta el tamaño del texto al espacio disponible
+     * dentro del WebView.
      */
     function ajustarTexto() {
       const contenedor =
@@ -285,52 +241,34 @@
       const contador =
         document.getElementById("contador");
 
-      const valor =
-        document.getElementById("valor");
-
-      const unidad =
-        document.getElementById("unidad");
-
       const anchoDisponible =
         Math.max(
-          contenedor.clientWidth - 16,
+          contenedor.clientWidth - 4,
           1
         );
 
       const altoDisponible =
         Math.max(
-          contenedor.clientHeight - 16,
+          contenedor.clientHeight - 4,
           1
         );
 
       /*
-       * El número ocupa aproximadamente el 75 % de la altura.
-       * La unidad se muestra algo más pequeña.
+       * Se parte de un tamaño alto y se reduce
+       * hasta que el texto cabe en el WebView.
        */
-      const tamanoValor =
+      let tamano =
         Math.min(
-          altoDisponible * 0.72,
-          210
+          altoDisponible * 0.8,
+          150
         );
 
-      const tamanoUnidad =
-        Math.max(
-          tamanoValor * 0.52,
-          18
-        );
-
-      valor.style.fontSize =
-        tamanoValor + "px";
-
-      unidad.style.fontSize =
-        tamanoUnidad + "px";
+      contador.style.fontSize =
+        tamano + "px";
 
       contador.style.transform =
         "none";
 
-      /*
-       * Se fuerza el recálculo del tamaño real.
-       */
       const anchoTexto =
         contador.scrollWidth;
 
@@ -358,10 +296,10 @@
      * Aplica el color según el criterio:
      *
      * AUM:
-     * valor mayor o igual que la referencia = verde.
+     * mayor o igual que la referencia = verde.
      *
      * DIS:
-     * valor menor o igual que la referencia = verde.
+     * menor o igual que la referencia = verde.
      */
     function aplicarColor(
       valor,
@@ -386,23 +324,39 @@
       }
 
       else {
+        /*
+         * Criterio no reconocido:
+         * se utiliza un color neutro.
+         */
         contador.style.color =
-          "#607080";
+          "#666666";
       }
     }
 
     /*
-     * Muestra el valor y la unidad.
+     * Número de decimales:
+     *
+     * L/km -> 4 decimales.
+     * Resto -> 2 decimales.
+     */
+    function obtenerDecimalesDesdeID(id) {
+      const simbolo =
+        obtenerSimboloDesdeID(id);
+
+      return simbolo === "L/km"
+        ? 4
+        : 2;
+    }
+
+    /*
+     * Muestra el valor con su unidad.
      */
     function mostrarValor(
       valor,
       id
     ) {
-      const elementoValor =
-        document.getElementById("valor");
-
-      const elementoUnidad =
-        document.getElementById("unidad");
+      const contador =
+        document.getElementById("contador");
 
       const simbolo =
         obtenerSimboloDesdeID(id);
@@ -410,19 +364,13 @@
       const decimales =
         obtenerDecimalesDesdeID(id);
 
-      elementoValor.textContent =
-        valor.toFixed(decimales);
-
-      elementoUnidad.textContent =
-        simbolo;
-
-      /*
-       * Oculta el espacio de la unidad si no existe.
-       */
-      elementoUnidad.style.display =
-        simbolo
-          ? "inline"
-          : "none";
+      contador.textContent =
+        valor.toFixed(decimales) +
+        (
+          simbolo
+            ? " " + simbolo
+            : ""
+        );
 
       ajustarTexto();
     }
@@ -436,10 +384,15 @@
       criterio,
       id
     ) {
-      let valorActual = 0;
-      let inicioAnimacion = null;
+      let currentValue = 0;
 
-      const duracion = 1500;
+      const pasos = 100;
+      const duracion = 2000;
+      const intervalo =
+        duracion / pasos;
+
+      const incremento =
+        valor / pasos;
 
       aplicarColor(
         valor,
@@ -456,49 +409,31 @@
         return;
       }
 
-      /*
-       * Curva ease-out para que la animación
-       * comience rápida y termine suavemente.
-       */
-      function easeOutCubic(progreso) {
-        return 1 - Math.pow(1 - progreso, 3);
-      }
+      const animation =
+        setInterval(() => {
+          currentValue += incremento;
 
-      function animar(timestamp) {
-        if (inicioAnimacion === null) {
-          inicioAnimacion = timestamp;
-        }
+          if (
+            incremento >= 0 &&
+            currentValue >= valor
+          ) {
+            currentValue = valor;
+            clearInterval(animation);
+          }
 
-        const tiempoTranscurrido =
-          timestamp - inicioAnimacion;
+          if (
+            incremento < 0 &&
+            currentValue <= valor
+          ) {
+            currentValue = valor;
+            clearInterval(animation);
+          }
 
-        const progreso =
-          Math.min(
-            tiempoTranscurrido / duracion,
-            1
-          );
-
-        valorActual =
-          valor * easeOutCubic(progreso);
-
-        mostrarValor(
-          valorActual,
-          id
-        );
-
-        if (progreso < 1) {
-          window.requestAnimationFrame(animar);
-        }
-
-        else {
           mostrarValor(
-            valor,
+            currentValue,
             id
           );
-        }
-      }
-
-      window.requestAnimationFrame(animar);
+        }, intervalo);
     }
 
     const valores =
@@ -512,7 +447,7 @@
     );
 
     /*
-     * Adalo puede modificar el tamaño del WebView
+     * Adalo puede recalcular el tamaño del WebView
      * después de cargar la página.
      */
     window.addEventListener(
